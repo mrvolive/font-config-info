@@ -8,75 +8,75 @@
 #include <time.h>
 #include <unistd.h>
 
+#include <X11/Xlib.h>
+#include <X11/Xresource.h>
 #include <fontconfig/fontconfig.h>
 #include <gdk/gdkx.h>
 #include <gio/gio.h>
 #include <gtk/gtk.h>
-#include <X11/Xlib.h>
-#include <X11/Xresource.h>
 
 #define NAME_FORMAT "%-20s "
 
-const char* GetFontconfigResultString(FcResult result) {
+const char *GetFontconfigResultString(FcResult result) {
   switch (result) {
-    case FcResultMatch:
-      return "match";
-    case FcResultNoMatch:
-      return "no match";
-    case FcResultTypeMismatch:
-      return "type mismatch";
-    case FcResultNoId:
-      return "no id";
-    case FcResultOutOfMemory:
-      return "out of memory";
-    default:
-      return "unknown";
+  case FcResultMatch:
+    return "match";
+  case FcResultNoMatch:
+    return "no match";
+  case FcResultTypeMismatch:
+    return "type mismatch";
+  case FcResultNoId:
+    return "no id";
+  case FcResultOutOfMemory:
+    return "out of memory";
+  default:
+    return "unknown";
   }
 }
 
-const char* GetFontconfigHintStyleString(int style) {
+const char *GetFontconfigHintStyleString(int style) {
   switch (style) {
-    case FC_HINT_NONE:
-      return "none";
-    case FC_HINT_SLIGHT:
-      return "slight";
-    case FC_HINT_MEDIUM:
-      return "medium";
-    case FC_HINT_FULL:
-      return "full";
-    default:
-      return "invalid";
+  case FC_HINT_NONE:
+    return "none";
+  case FC_HINT_SLIGHT:
+    return "slight";
+  case FC_HINT_MEDIUM:
+    return "medium";
+  case FC_HINT_FULL:
+    return "full";
+  default:
+    return "invalid";
   }
 }
 
-const char* GetFontconfigRgbaString(int rgba) {
+const char *GetFontconfigRgbaString(int rgba) {
   switch (rgba) {
-    case FC_RGBA_UNKNOWN:
-      return "unknown";
-    case FC_RGBA_RGB:
-      return "rgb";
-    case FC_RGBA_BGR:
-      return "bgr";
-    case FC_RGBA_VRGB:
-      return "vrgb";
-    case FC_RGBA_VBGR:
-      return "vbgr";
-    case FC_RGBA_NONE:
-      return "none";
-    default:
-      return "invalid";
+  case FC_RGBA_UNKNOWN:
+    return "unknown";
+  case FC_RGBA_RGB:
+    return "rgb";
+  case FC_RGBA_BGR:
+    return "bgr";
+  case FC_RGBA_VRGB:
+    return "vrgb";
+  case FC_RGBA_VBGR:
+    return "vbgr";
+  case FC_RGBA_NONE:
+    return "none";
+  default:
+    return "invalid";
   }
 }
 
-void PrintGtkBoolSetting(GtkSettings* settings, const char* name) {
+void PrintGtkBoolSetting(GtkSettings *settings, const char *name) {
   gint value = -1;
   g_object_get(settings, name, &value, NULL);
   printf(NAME_FORMAT "%d (%s)\n", name, value,
-         (value == 0 ? "no": (value > 0 ? "yes" : "default")));
+         (value == 0 ? "no" : (value > 0 ? "yes" : "default")));
 }
 
-void PrintGtkStringSetting(GtkSettings* settings, const char* name) {
-  gchar* value = NULL;
+void PrintGtkStringSetting(GtkSettings *settings, const char *name) {
+  gchar *value = NULL;
   g_object_get(settings, name, &value, NULL);
   printf(NAME_FORMAT "\"%s\"\n", name, (value ? value : "[unset]"));
   if (value)
@@ -85,7 +85,7 @@ void PrintGtkStringSetting(GtkSettings* settings, const char* name) {
 
 void PrintGtkSettings() {
   printf("GtkSettings:\n");
-  GtkSettings* settings = gtk_settings_get_default();
+  GtkSettings *settings = gtk_settings_get_default();
   assert(settings);
   PrintGtkStringSetting(settings, "gtk-font-name");
   PrintGtkBoolSetting(settings, "gtk-xft-antialias");
@@ -105,11 +105,11 @@ void PrintGtkSettings() {
   printf("\n");
 }
 
-void PrintGtkWidgetFontStyleAndSinkRef(GtkWidget* widget) {
-  GtkStyle* style = gtk_rc_get_style(widget);
-  PangoFontDescription* font_desc = style->font_desc;
-  gchar* font_string = font_desc ?
-      pango_font_description_to_string(font_desc) : NULL;
+void PrintGtkWidgetFontStyleAndSinkRef(GtkWidget *widget) {
+  GtkStyle *style = gtk_rc_get_style(widget);
+  PangoFontDescription *font_desc = style->font_desc;
+  gchar *font_string =
+      font_desc ? pango_font_description_to_string(font_desc) : NULL;
   printf(NAME_FORMAT "\"%s\"\n", G_OBJECT_TYPE_NAME(widget),
          font_string ? font_string : "[unset]");
 
@@ -126,9 +126,8 @@ void PrintGtkStyles() {
   printf("\n");
 }
 
-void PrintGSettingsSetting(GSettings* settings,
-                           const char* key) {
-  GVariant* variant = g_settings_get_value(settings, key);
+void PrintGSettingsSetting(GSettings *settings, const char *key) {
+  GVariant *variant = g_settings_get_value(settings, key);
   if (!variant) {
     printf(NAME_FORMAT "[unset]\n", key);
     return;
@@ -148,15 +147,13 @@ void PrintGnomeSettings() {
   const char kSchema[] = "org.gnome.desktop.interface";
   printf("GSettings (%s):\n", kSchema);
 
-  gchar** schemas = NULL;
+  gchar **schemas = NULL;
   int found_schema = 0;
 
   g_settings_schema_source_list_schemas(g_settings_schema_source_get_default(),
-					TRUE,
-					&schemas,
-					NULL);
+                                        TRUE, &schemas, NULL);
 
-  for ( ; *schemas; schemas++) {
+  for (; *schemas; schemas++) {
     if (strcmp(kSchema, *schemas) == 0) {
       found_schema = 1;
       break;
@@ -167,7 +164,7 @@ void PrintGnomeSettings() {
     return;
   }
 
-  GSettings* settings = g_settings_new(kSchema);
+  GSettings *settings = g_settings_new(kSchema);
   assert(settings);
   PrintGSettingsSetting(settings, "font-name");
   PrintGSettingsSetting(settings, "text-scaling-factor");
@@ -177,10 +174,15 @@ void PrintGnomeSettings() {
 
 void PrintXDisplayInfo() {
   printf("X11 display info:\n");
-  Display* display = GDK_DISPLAY_XDISPLAY(gdk_display_get_default());
+  Display *display = GDK_DISPLAY_XDISPLAY(gdk_display_get_default());
   assert(display);
 
   const int screen = DefaultScreen(display);
+  if (screen == 0) {
+    printf("No X11 screen could be fetch, skipping...\n");
+    return;
+  }
+
   const int width_px = DisplayWidth(display, screen);
   const int height_px = DisplayHeight(display, screen);
   const int width_mm = DisplayWidthMM(display, screen);
@@ -189,13 +191,13 @@ void PrintXDisplayInfo() {
   const double y_dpi = height_px * 25.4 / height_mm;
 
   printf(NAME_FORMAT "%dx%d\n", "screen pixels", width_px, height_px);
-  printf(NAME_FORMAT "%dx%d mm (%.2fx%.2f DPI)\n", "screen size",
-         width_mm, height_mm, x_dpi, y_dpi);
+  printf(NAME_FORMAT "%dx%d mm (%.2fx%.2f DPI)\n", "screen size", width_mm,
+         height_mm, x_dpi, y_dpi);
   printf("\n");
 }
 
-void PrintXResource(XrmDatabase db, const char* name) {
-  char* type = NULL;
+void PrintXResource(XrmDatabase db, const char *name) {
+  char *type = NULL;
   XrmValue value;
   if (!XrmGetResource(db, name, "*", &type, &value)) {
     printf(NAME_FORMAT "[unset]\n", name);
@@ -212,10 +214,10 @@ void PrintXResource(XrmDatabase db, const char* name) {
 
 void PrintXResources() {
   printf("X resources (xrdb):\n");
-  Display* display = GDK_DISPLAY_XDISPLAY(gdk_display_get_default());
+  Display *display = GDK_DISPLAY_XDISPLAY(gdk_display_get_default());
   assert(display);
 
-  const char* data = XResourceManagerString(display);
+  const char *data = XResourceManagerString(display);
   if (!data) {
     printf("[failed]\n\n");
     return;
@@ -231,8 +233,8 @@ void PrintXResources() {
   printf("\n");
 }
 
-void PrintFontconfigString(FcPattern* match, const char* prop) {
-  FcChar8* value = NULL;
+void PrintFontconfigString(FcPattern *match, const char *prop) {
+  FcChar8 *value = NULL;
   FcResult result = FcResultNoMatch;
   if ((result = FcPatternGetString(match, prop, 0, &value)) != FcResultMatch)
     printf(NAME_FORMAT "[%s]\n", prop, GetFontconfigResultString(result));
@@ -240,7 +242,7 @@ void PrintFontconfigString(FcPattern* match, const char* prop) {
     printf(NAME_FORMAT "%s\n", prop, value);
 }
 
-void PrintFontconfigBool(FcPattern* match, const char* prop) {
+void PrintFontconfigBool(FcPattern *match, const char *prop) {
   FcBool value = 0;
   FcResult result = FcResultNoMatch;
   if ((result = FcPatternGetBool(match, prop, 0, &value)) != FcResultMatch)
@@ -249,23 +251,22 @@ void PrintFontconfigBool(FcPattern* match, const char* prop) {
     printf(NAME_FORMAT "%d\n", prop, value);
 }
 
-void PrintFontconfigInt(FcPattern* match,
-                        const char* prop,
-                        const char* (*int_to_string_func)(int),
-                        const char* suffix) {
+void PrintFontconfigInt(FcPattern *match, const char *prop,
+                        const char *(*int_to_string_func)(int),
+                        const char *suffix) {
   int value = 0;
   FcResult result = FcResultNoMatch;
   if ((result = FcPatternGetInteger(match, prop, 0, &value)) != FcResultMatch)
     printf(NAME_FORMAT "[%s]\n", prop, GetFontconfigResultString(result));
   else if (int_to_string_func)
-    printf(NAME_FORMAT "%d%s (%s)\n", prop, value, suffix, int_to_string_func(value));
+    printf(NAME_FORMAT "%d%s (%s)\n", prop, value, suffix,
+           int_to_string_func(value));
   else
     printf(NAME_FORMAT "%d%s\n", prop, value, suffix);
 }
 
-void PrintFontconfigDouble(FcPattern* match,
-                           const char* prop,
-                           const char* suffix) {
+void PrintFontconfigDouble(FcPattern *match, const char *prop,
+                           const char *suffix) {
   double value = 0.0;
   FcResult result = FcResultNoMatch;
   if ((result = FcPatternGetDouble(match, prop, 0, &value)) != FcResultMatch)
@@ -274,8 +275,7 @@ void PrintFontconfigDouble(FcPattern* match,
     printf(NAME_FORMAT "%.2f%s\n", prop, value, suffix);
 }
 
-void PrintFontconfigPattern(FcPattern* pattern,
-                            int print_family_and_size) {
+void PrintFontconfigPattern(FcPattern *pattern, int print_family_and_size) {
   if (print_family_and_size) {
     PrintFontconfigString(pattern, FC_FAMILY);
     PrintFontconfigDouble(pattern, FC_PIXEL_SIZE, " pixels");
@@ -290,25 +290,25 @@ void PrintFontconfigPattern(FcPattern* pattern,
   printf("\n");
 }
 
-void PrintFontconfigMatch(const char* user_desc_string, int bold, int italic) {
-  PangoFontDescription* desc = NULL;
+void PrintFontconfigMatch(const char *user_desc_string, int bold, int italic) {
+  PangoFontDescription *desc = NULL;
   if (user_desc_string) {
     desc = pango_font_description_from_string(user_desc_string);
   } else {
-    GtkWidget* widget = gtk_label_new("foo");
+    GtkWidget *widget = gtk_label_new("foo");
     desc = pango_font_description_copy(gtk_rc_get_style(widget)->font_desc);
     g_object_ref_sink(widget);
   }
 
-  gchar* desc_string = pango_font_description_to_string(desc);
+  gchar *desc_string = pango_font_description_to_string(desc);
   printf("Fontconfig (%s):\n", desc_string);
   g_free(desc_string);
 
-  FcPattern* pattern = FcPatternCreate();
+  FcPattern *pattern = FcPatternCreate();
   assert(pattern);
 
   FcPatternAddString(pattern, FC_FAMILY,
-                     (const FcChar8*) pango_font_description_get_family(desc));
+                     (const FcChar8 *)pango_font_description_get_family(desc));
   if (bold) {
     FcPatternAddInteger(pattern, FC_WEIGHT, FC_WEIGHT_BOLD);
     printf(NAME_FORMAT "FC_WEIGHT_BOLD\n", "requested weight");
@@ -321,7 +321,7 @@ void PrintFontconfigMatch(const char* user_desc_string, int bold, int italic) {
   // Pass either pixel or points depending on what was requested.
   if (pango_font_description_get_size_is_absolute(desc)) {
     const double pixel_size =
-        pango_font_description_get_size(desc) / PANGO_SCALE;
+        pango_font_description_get_size(desc) / (int)PANGO_SCALE;
     FcPatternAddDouble(pattern, FC_PIXEL_SIZE, pixel_size);
     printf(NAME_FORMAT "%.2f pixels\n", "requested size", pixel_size);
   } else {
@@ -333,7 +333,7 @@ void PrintFontconfigMatch(const char* user_desc_string, int bold, int italic) {
   FcConfigSubstitute(NULL, pattern, FcMatchPattern);
   FcDefaultSubstitute(pattern);
   FcResult result;
-  FcPattern* match = FcFontMatch(0, pattern, &result);
+  FcPattern *match = FcFontMatch(0, pattern, &result);
   assert(match);
 
   PrintFontconfigPattern(match, 1);
@@ -345,7 +345,7 @@ void PrintFontconfigMatch(const char* user_desc_string, int bold, int italic) {
 
 void PrintFontconfigDefaults() {
   printf("Fontconfig (default pattern):\n");
-  FcPattern* query = FcPatternCreate();
+  FcPattern *query = FcPatternCreate();
   assert(query);
   FcConfigSubstitute(NULL, query, FcMatchPattern);
   FcDefaultSubstitute(query);
@@ -353,12 +353,12 @@ void PrintFontconfigDefaults() {
 
   printf("Fontconfig (default match):\n");
   FcResult result;
-  FcPattern* match = FcFontMatch(NULL, query, &result);
+  FcPattern *match = FcFontMatch(NULL, query, &result);
   assert(match);
   PrintFontconfigPattern(match, 1);
 
   printf("Fontconfig (non-family/size defaults):\n");
-  FcPattern* defaults = FcPatternDuplicate(query);
+  FcPattern *defaults = FcPatternDuplicate(query);
   FcPatternDel(defaults, FC_FAMILY);
   FcPatternDel(defaults, FC_PIXEL_SIZE);
   FcPatternDel(defaults, FC_SIZE);
@@ -373,14 +373,14 @@ void PrintFontconfigDefaults() {
 void PrintXSettings() {
   printf("XSETTINGS:\n");
   fflush(NULL);
-  int retval = system(
-      "bash -c \""
-        "set -o pipefail; "
-        "dump_xsettings | "
-          "grep -E '^(Gtk/FontName |Xft/)' | "
-          "sed -e 's/  */|/' | "
-          "awk -F '|' '{printf \\\"" NAME_FORMAT "%s\\n\\\", \\$1, \\$2}'"
-      "\"");
+  int retval =
+      system("bash -c \""
+             "set -o pipefail; "
+             "dump_xsettings | "
+             "grep -E '^(Gtk/FontName |Xft/)' | "
+             "sed -e 's/  */|/' | "
+             "awk -F '|' '{printf \\\"" NAME_FORMAT "%s\\n\\\", \\$1, \\$2}'"
+             "\"");
   if (WEXITSTATUS(retval) != 0) {
     printf("Install dump_xsettings from https://code.google.com/p/xsettingsd/\n"
            "to print this information.\n");
@@ -388,31 +388,31 @@ void PrintXSettings() {
   printf("\n");
 }
 
-int main(int argc, char** argv) {
+int main(int argc, char **argv) {
   int opt;
   int bold = 0, italic = 0;
-  const char* user_font_desc = NULL;
+  const char *user_font_desc = NULL;
   while ((opt = getopt(argc, argv, "bf:hi")) != -1) {
     switch (opt) {
-      case 'b':
-        bold = 1;
-        break;
-      case 'f':
-        user_font_desc = optarg;
-        break;
-      case 'i':
-        italic = 1;
-        break;
-      default:
-        fprintf(stderr,
-                "Usage: %s [options]\n"
-                "\n"
-                "Options:\n"
-                "  -b       Request bold font from Fontconfig\n"
-                "  -f DESC  Specify Pango font description for Fontconfig\n"
-                "  -i       Request italic font from Fontconfig\n",
-                argv[0]);
-        return 1;
+    case 'b':
+      bold = 1;
+      break;
+    case 'f':
+      user_font_desc = optarg;
+      break;
+    case 'i':
+      italic = 1;
+      break;
+    default:
+      fprintf(stderr,
+              "Usage: %s [options]\n"
+              "\n"
+              "Options:\n"
+              "  -b       Request bold font from Fontconfig\n"
+              "  -f DESC  Specify Pango font description for Fontconfig\n"
+              "  -i       Request italic font from Fontconfig\n",
+              argv[0]);
+      return 1;
     }
   }
 
