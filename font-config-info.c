@@ -423,7 +423,9 @@ int main(int argc, char **argv) {
   PrintGtkSettings();
   PrintGtkStyles();
   PrintGnomeSettings();
-  PrintXDisplayInfo();
+  if (strcmp(getenv("XDG_SESSION_TYPE"), "x11") == 0) {
+    PrintXDisplayInfo();
+  }
   PrintXResources();
   PrintXSettings();
   PrintFontconfigMatch(user_font_desc, bold, italic);
