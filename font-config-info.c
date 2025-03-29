@@ -179,7 +179,7 @@ void PrintXDisplayInfo() {
 
   const int screen = DefaultScreen(display);
   if (screen == 0) {
-    printf("No X11 screen could be fetch, skipping...\n");
+    printf("No X11 screen could be fetch, skipping...\n\n");
     return;
   }
 
