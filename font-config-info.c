@@ -196,6 +196,15 @@ void PrintXDisplayInfo() {
   printf("\n");
 }
 
+void PrintWaylandInfo(){
+  printf("Wayland display info:\n");
+      system("bash -c \""
+             "set -e;"
+             "wayland-info -i \"wl_output\""
+             "\"");
+  printf("\n");
+}
+
 void PrintXResource(XrmDatabase db, const char *name) {
   char *type = NULL;
   XrmValue value;
@@ -425,6 +434,9 @@ int main(int argc, char **argv) {
   PrintGnomeSettings();
   if (strcmp(getenv("XDG_SESSION_TYPE"), "x11") == 0) {
     PrintXDisplayInfo();
+  }
+  if (strcmp(getenv("XDG_SESSION_TYPE"), "wayland") == 0) {
+    PrintWaylandInfo();
   }
   PrintXResources();
   PrintXSettings();
